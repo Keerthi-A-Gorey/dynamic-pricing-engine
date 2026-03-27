@@ -4,6 +4,11 @@
     "module": "CommonJS",
     "strict": true,
     "esModuleInterop": true,
+    "outDir": "dist",
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
     "outDir": "dist"
+    },
+    "include": ["./**/*.ts"]
   }
 }

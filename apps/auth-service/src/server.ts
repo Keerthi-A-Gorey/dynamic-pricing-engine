@@ -1,17 +1,21 @@
-import Fastify from 'fastify';
+import Fastify from "fastify";
+import { authRoutes } from "./routes/auth.routes";
 
-const app = Fastify({
-  logger: true,
-});
+const app = Fastify({ logger: true });
 
-app.get('/', async () => {
-  return { message: 'API Gateway running' };
+app.register(authRoutes, { prefix: "/auth" });
+
+app.get("/", async () => {
+  return { message: "Auth Service Running" };
 });
 
 const start = async () => {
   try {
-    await app.listen({ port: 3001 });
-    console.log('Server running on port 3001');
+    await app.listen({ port: 3002 });
+    console.log("Auth service running on 3002");
+
+    await app.ready();
+    console.log(app.printRoutes());
   } catch (err) {
     app.log.error(err);
     process.exit(1);

@@ -13,13 +13,14 @@ datasource db {
 }
 
 model User {
-  id          String   @id @default(uuid())
-  email       String   @unique
-  password    String
-  role        Role     @default(USER)
-  createdAt   DateTime @default(now())
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
 
-  businesses  Business[]
+  businesses   Business[]
+  RefreshToken RefreshToken[]
 }
 
 model Business {
@@ -28,19 +29,19 @@ model Business {
   ownerId   String
   createdAt DateTime @default(now())
 
-  owner     User     @relation(fields: [ownerId], references: [id])
-  products  Product[]
+  owner    User      @relation(fields: [ownerId], references: [id])
+  products Product[]
 }
 
 model Product {
-  id          String   @id @default(uuid())
-  name        String
-  basePrice   Float
-  businessId  String
+  id         String @id @default(uuid())
+  name       String
+  basePrice  Float
+  businessId String
 
-  business    Business @relation(fields: [businessId], references: [id])
-  events      PricingEvent[]
-  results     PricingResult[]
+  business Business        @relation(fields: [businessId], references: [id])
+  events   PricingEvent[]
+  results  PricingResult[]
 }
 
 model PricingEvent {
@@ -50,18 +51,28 @@ model PricingEvent {
   supply    Float
   timestamp DateTime @default(now())
 
-  product   Product  @relation(fields: [productId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
 }
 
 model PricingResult {
-  id              String   @id @default(uuid())
-  productId       String
-  predictedPrice  Float
-  confidence      Float
-  modelVersion    String
-  createdAt       DateTime @default(now())
+  id             String   @id @default(uuid())
+  productId      String
+  predictedPrice Float
+  confidence     Float
+  modelVersion   String
+  createdAt      DateTime @default(now())
 
-  product         Product  @relation(fields: [productId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  user User @relation(fields: [userId], references: [id])
 }
 
 enum Role {

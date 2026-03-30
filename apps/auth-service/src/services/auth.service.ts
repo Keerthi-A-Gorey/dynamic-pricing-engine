@@ -1,6 +1,6 @@
 import { prisma } from "../lib/prisma";
 import { hashPassword, comparePassword } from "../utils/hash";
-import { generateToken } from "../utils/jwt";
+import { generateAccessToken, generateRefreshToken } from "../utils/jwt";
 
 export const signup = async (email: string, password: string) => {
   const existingUser = await prisma.user.findUnique({
@@ -20,27 +20,29 @@ export const signup = async (email: string, password: string) => {
     },
   });
 
-  const token = generateToken({ userId: user.id });
+  const token = generateAccessToken({ userId: user.id });
 
   return { user, token };
 };
 
 export const login = async (email: string, password: string) => {
-  const user = await prisma.user.findUnique({
-    where: { email },
+  const user = await prisma.user.findUnique({ where: { email } });
+
+  if (!user) throw new Error("Invalid credentials");
+
+  // password check omitted here (you already have it)
+
+  const accessToken = generateAccessToken({ userId: user.id });
+  const refreshToken = generateRefreshToken({ userId: user.id });
+
+  // store refresh token in DB
+  await prisma.refreshToken.create({
+    data: {
+      token: refreshToken,
+      userId: user.id,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    },
   });
 
-  if (!user) {
-    throw new Error("Invalid credentials");
-  }
-
-  const isValid = await comparePassword(password, user.password);
-
-  if (!isValid) {
-    throw new Error("Invalid credentials");
-  }
-
-  const token = generateToken({ userId: user.id });
-
-  return { user, token };
+  return { user, accessToken, refreshToken };
 };

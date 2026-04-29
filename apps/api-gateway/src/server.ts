@@ -1,17 +1,24 @@
-import Fastify from 'fastify';
+import Fastify from "fastify";
+import predictRoute from "./routes/predict.route";
+import cors from "@fastify/cors";
 
 const app = Fastify({
   logger: true,
 });
 
-app.get('/', async () => {
-  return { message: 'API Gateway running' };
-});
-
 const start = async () => {
   try {
-    await app.listen({ port: 3001 });
-    console.log('Server running on port 3001');
+    // ✅ register plugins INSIDE async function
+    await app.register(cors, {
+      origin: true,
+    });
+
+    // routes
+    app.register(predictRoute, { prefix: "/api" });
+
+    await app.listen({ port: 3000 });
+
+    console.log("🚀 Server running on http://localhost:3000");
   } catch (err) {
     app.log.error(err);
     process.exit(1);

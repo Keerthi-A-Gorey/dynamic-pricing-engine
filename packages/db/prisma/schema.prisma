@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -12,70 +7,25 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  role      Role     @default(USER)
-  createdAt DateTime @default(now())
-
-  businesses   Business[]
-  RefreshToken RefreshToken[]
-}
-
-model Business {
-  id        String   @id @default(uuid())
-  name      String
-  ownerId   String
-  createdAt DateTime @default(now())
-
-  owner    User      @relation(fields: [ownerId], references: [id])
-  products Product[]
-}
-
 model Product {
-  id         String @id @default(uuid())
+  id         String   @id @default(uuid())
   name       String
   basePrice  Float
-  businessId String
+  createdAt  DateTime @default(now())
 
-  business Business        @relation(fields: [businessId], references: [id])
-  events   PricingEvent[]
-  results  PricingResult[]
+  logs       PricingLog[]
 }
 
-model PricingEvent {
-  id        String   @id @default(uuid())
-  productId String
-  demand    Float
-  supply    Float
-  timestamp DateTime @default(now())
+model PricingLog {
+  id              String   @id @default(uuid())
+  demand          Float
+  supply          Float
+  time            Float
+  predictedPrice  Float
+  confidence      Float
+  modelVersion    String
+  createdAt       DateTime @default(now())
 
-  product Product @relation(fields: [productId], references: [id])
-}
-
-model PricingResult {
-  id             String   @id @default(uuid())
-  productId      String
-  predictedPrice Float
-  confidence     Float
-  modelVersion   String
-  createdAt      DateTime @default(now())
-
-  product Product @relation(fields: [productId], references: [id])
-}
-
-model RefreshToken {
-  id        String   @id @default(uuid())
-  token     String   @unique
-  userId    String
-  createdAt DateTime @default(now())
-  expiresAt DateTime
-
-  user User @relation(fields: [userId], references: [id])
-}
-
-enum Role {
-  ADMIN
-  USER
+  productId       String?
+  product         Product? @relation(fields: [productId], references: [id])
 }

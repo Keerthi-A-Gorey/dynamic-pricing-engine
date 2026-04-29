@@ -5,6 +5,12 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "@repo/shared-types/*": ["packages/shared-types/src/*"],
+      "@repo/shared-types": ["packages/shared-types/src"],
+      "@repo/db": ["packages/db"]
+    }
   }
 }
